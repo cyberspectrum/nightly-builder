@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+
+use Symfony\Component\Console\Application;
+use CyberSpectrum\Command\BuildCommand;
+
+require_once(__DIR__ . '/vendor/autoload.php');
+
+function exception_error_handler($errno, $errstr, $errfile, $errline ) {
+	throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
+}
+set_error_handler("exception_error_handler", E_ALL ^ E_NOTICE ^ E_USER_NOTICE);
+
+$application = new Application();
+$application->add(new BuildCommand());
+$application->run();
