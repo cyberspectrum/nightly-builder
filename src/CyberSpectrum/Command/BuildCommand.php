@@ -123,7 +123,7 @@ class BuildCommand extends Command
 		$this->package = $root . DIRECTORY_SEPARATOR . 'build_package_' . $this->encodedName;
 
 		$this->fs->remove($this->package);
-		$this->output->writeln('  - <info>Preparing clean output environment' . $this->package . '</info>');
+		$this->output->writeln('  - <info>Preparing clean output environment ' . $this->package . '</info>');
 
 		if (!is_dir($this->package))
 		{
@@ -751,11 +751,11 @@ EOF
 		}
 
 		if ($this->input->getOption('dir')) {
-			$this->output->writeln('  - <info>Create package</info>');
+			$this->output->writeln('  - <info>Create package ' . $output . '</info>');
 			$this->copy($this->package, $output, new Filesystem());
 		}
 		else {
-			$this->output->writeln('  - <info>Create package archive</info>');
+			$this->output->writeln('  - <info>Create package archive' . $output . '</info>');
 			$zip = new \ZipArchive();
 			$zip->open($output, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
 			$this->addToZipArchive($zip, $this->package, '');
