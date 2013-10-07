@@ -63,6 +63,7 @@ class BuildCommand extends Command
 			->setDescription('Create packages from a composer designed repository including all dependencies for nightly distribution including custom auto loading etc.')
 			->addOption('zip', 'Z', InputOption::VALUE_NONE, 'Create a zip archive (enabled by default, only present for sanity).')
 			->addOption('dir', 'D', InputOption::VALUE_NONE, 'Create a directory instead of an archive.')
+			->addOption('xml', 'x', InputOption::VALUE_OPTIONAL, 'Create a xml file at the given location.')
 			->addArgument('project', InputArgument::OPTIONAL, 'The input path containing the composer.json.', 'nightly.composer.json')
 			->addArgument('output', InputArgument::OPTIONAL, 'The output path.', 'package.zip');
 	}
@@ -544,6 +545,176 @@ EOF
 		}
 	}
 
+	protected function getLicenseUrl($license)
+	{
+		if (in_array($license, array(
+			'AFL-1.1', 'AFL-1.2', 'AFL-2.0', 'AFL-2.1', 'AFL-3.0', 'APL-1.0', 'Aladdin', 'ANTLR-PD', 'Apache-1.0',
+			'Apache-1.1', 'Apache-2.0', 'APSL-1.0', 'APSL-1.1', 'APSL-1.2', 'APSL-2.0', 'Artistic-1.0',
+			'Artistic-1.0-cl8', 'Artistic-1.0-Perl', 'Artistic-2.0', 'AAL', 'BitTorrent-1.0', 'BitTorrent-1.1',
+			'BSL-1.0', 'BSD-2-Clause', 'BSD-2-Clause-FreeBSD', 'BSD-2-Clause-NetBSD', 'BSD-3-Clause',
+			'BSD-3-Clause-Clear', 'BSD-4-Clause', 'BSD-4-Clause-UC', 'CECILL-1.0', 'CECILL-1.1', 'CECILL-2.0',
+			'CECILL-B', 'CECILL-C', 'ClArtistic', 'CNRI-Python', 'CNRI-Python-GPL-Compatible', 'CPOL-1.02',
+			'CDDL-1.0', 'CDDL-1.1', 'CPAL-1.0', 'CPL-1.0', 'CATOSL-1.1', 'Condor-1.1', 'CC-BY-1.0', 'CC-BY-2.0',
+			'CC-BY-2.5', 'CC-BY-3.0', 'CC-BY-ND-1.0', 'CC-BY-ND-2.0', 'CC-BY-ND-2.5', 'CC-BY-ND-3.0',
+			'CC-BY-NC-1.0', 'CC-BY-NC-2.0', 'CC-BY-NC-2.5', 'CC-BY-NC-3.0', 'CC-BY-NC-ND-1.0', 'CC-BY-NC-ND-2.0',
+			'CC-BY-NC-ND-2.5', 'CC-BY-NC-ND-3.0', 'CC-BY-NC-SA-1.0', 'CC-BY-NC-SA-2.0', 'CC-BY-NC-SA-2.5',
+			'CC-BY-NC-SA-3.0', 'CC-BY-SA-1.0', 'CC-BY-SA-2.0', 'CC-BY-SA-2.5', 'CC-BY-SA-3.0', 'CC0-1.0',
+			'CUA-OPL-1.0', 'D-FSL-1.0', 'WTFPL', 'EPL-1.0', 'eCos-2.0', 'ECL-1.0', 'ECL-2.0', 'EFL-1.0', 'EFL-2.0',
+			'Entessa', 'ErlPL-1.1', 'EUDatagrid', 'EUPL-1.0', 'EUPL-1.1', 'Fair', 'Frameworx-1.0', 'FTL',
+			'AGPL-1.0', 'AGPL-3.0', 'GFDL-1.1', 'GFDL-1.2', 'GFDL-1.3', 'GPL-1.0', 'GPL-1.0+', 'GPL-2.0',
+			'GPL-2.0+', 'GPL-2.0-with-autoconf-exception', 'GPL-2.0-with-bison-exception',
+			'GPL-2.0-with-classpath-exception', 'GPL-2.0-with-font-exception', 'GPL-2.0-with-GCC-exception',
+			'GPL-3.0', 'GPL-3.0+', 'GPL-3.0-with-autoconf-exception', 'GPL-3.0-with-GCC-exception', 'LGPL-2.1',
+			'LGPL-2.1+', 'LGPL-3.0', 'LGPL-3.0+', 'LGPL-2.0', 'LGPL-2.0+', 'gSOAP-1.3b', 'HPND', 'IBM-pibs',
+			'IPL-1.0', 'Imlib2', 'IJG', 'Intel', 'IPA', 'ISC', 'JSON', 'LPPL-1.3a', 'LPPL-1.0', 'LPPL-1.1',
+			'LPPL-1.2', 'LPPL-1.3c', 'Libpng', 'LPL-1.02', 'LPL-1.0', 'MS-PL', 'MS-RL', 'MirOS', 'MIT', 'Motosoto',
+			'MPL-1.0', 'MPL-1.1', 'MPL-2.0', 'MPL-2.0-no-copyleft-exception', 'Multics', 'NASA-1.3', 'Naumen',
+			'NBPL-1.0', 'NGPL', 'NOSL', 'NPL-1.0', 'NPL-1.1', 'Nokia', 'NPOSL-3.0', 'NTP', 'OCLC-2.0', 'ODbL-1.0',
+			'PDDL-1.0', 'OGTSL', 'OLDAP-2.2.2', 'OLDAP-1.1', 'OLDAP-1.2', 'OLDAP-1.3', 'OLDAP-1.4', 'OLDAP-2.0',
+			'OLDAP-2.0.1', 'OLDAP-2.1', 'OLDAP-2.2', 'OLDAP-2.2.1', 'OLDAP-2.3', 'OLDAP-2.4', 'OLDAP-2.5',
+			'OLDAP-2.6', 'OLDAP-2.7', 'OPL-1.0', 'OSL-1.0', 'OSL-2.0', 'OSL-2.1', 'OSL-3.0', 'OLDAP-2.8', 'OpenSSL',
+			'PHP-3.0', 'PHP-3.01', 'PostgreSQL', 'Python-2.0', 'QPL-1.0', 'RPSL-1.0', 'RPL-1.1', 'RPL-1.5',
+			'RHeCos-1.1', 'RSCPL', 'Ruby', 'SAX-PD', 'SGI-B-1.0', 'SGI-B-1.1', 'SGI-B-2.0', 'OFL-1.0', 'OFL-1.1',
+			'SimPL-2.0', 'Sleepycat', 'SMLNJ', 'SugarCRM-1.1.3', 'SISSL', 'SISSL-1.2', 'SPL-1.0', 'Watcom-1.0',
+			'NCSA', 'VSL-1.0', 'W3C', 'WXwindows', 'Xnet', 'X11', 'XFree86-1.1', 'YPL-1.0', 'YPL-1.1', 'Zimbra-1.3',
+			'Zlib', 'ZPL-1.1', 'ZPL-2.0', 'ZPL-2.1', 'Unlicense')))
+		{
+			return sprintf('http://spdx.org/licenses/%1$s', $license);
+		}
+		else
+		{
+			return $license;
+		}
+	}
+
+	protected function strIsLongerThan($a, $b)
+	{
+		if (strlen($a) > strlen($b))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	protected function preparePackageInformation()
+	{
+		$lock = json_decode(file_get_contents($this->repository . '/composer.lock'), true);
+
+		$data = array
+		(
+			'maxlen' => array(
+				'name'       => '',
+				'url'        => '',
+				'link'       => '',
+				'version'    => '',
+				'lastchange' => '',
+				'license'    => array
+				(
+					'name'   => '',
+					'url'    => ''
+				)
+			)
+		);
+
+		foreach ($lock['packages'] as $package) {
+
+			if ($this->isBlackListedPackage($package['name']))
+			{
+				continue;
+			}
+
+			if (isset($package['source'])) {
+				$url = preg_replace('#\.git$#', '', $package['source']['url']);
+			}
+			else
+			{
+				$url = false;
+			}
+
+			if (isset($package['homepage'])) {
+				$homepage = $package['homepage'];
+			}
+			else
+			{
+				$homepage = false;
+			}
+
+			$version = $package['version'];
+			$time    = $package['time'];
+
+			if (preg_match('#(^dev-|-dev$)#', $package['version'])) {
+				if (isset($package['source']['reference'])) {
+					$version .= ' @ ' . substr($package['source']['reference'], 0, 6);
+				}
+				else if (isset($package['dist']['reference'])) {
+					$version .= ' @ ' . substr($package['dist']['reference'], 0, 6);
+				}
+			}
+
+			$license_urls = array();
+			foreach ($package['license'] as $license)
+			{
+				$license_url = $this->getLicenseUrl($package['license']);
+				if ($license_url !== $package['license'])
+				{
+					$license_urls[] = array(
+						'name' => $license,
+						'url'  => $license_url
+					);
+				}
+				else
+				{
+					$license_urls[] = array(
+						'name' => $license,
+						'url'  => ''
+					);
+				}
+			}
+
+			$data[$package['name']] = array(
+				'name'       => $package['name'],
+				'homepage'   => $homepage,
+				'url'        => $url,
+				'license'    => $license_urls,
+				'version'    => $version,
+				'lastchange' => $time
+			);
+
+			if ($this->strIsLongerThan($package['name'], $data['maxlen']['name']))
+			{
+				$data['maxlen']['name'] = $package['name'];
+			}
+			if ($this->strIsLongerThan($url, $data['maxlen']['url']))
+			{
+				$data['maxlen']['url'] = $url;
+			}
+
+			foreach ($license_urls as $license)
+			{
+				if ($this->strIsLongerThan($license['name'], $data['maxlen']['license']['name']))
+				{
+					$data['maxlen']['license']['name'] = $license['name'];
+				}
+				if ($this->strIsLongerThan($license['url'], $data['maxlen']['license']['url']))
+				{
+					$data['maxlen']['license']['url'] = $license['url'];
+				}
+			}
+
+			if ($this->strIsLongerThan($version, $data['maxlen']['version']))
+			{
+				$data['maxlen']['version'] = $version;
+			}
+			if ($this->strIsLongerThan($time, $data['maxlen']['lastchange']))
+			{
+				$data['maxlen']['lastchange'] = $time;
+			}
+		}
+
+		return $data;
+	}
+
 	/**
 	 * Create the backend module which displays information about this build.
 	 */
@@ -562,81 +733,34 @@ EOF
 	<tbody>
 
 EOF;
-		$lock = json_decode(file_get_contents($this->repository . '/composer.lock'), true);
-		foreach ($lock['packages'] as $package) {
 
-			if ($this->isBlackListedPackage($package['name']))
+		foreach ($this->preparePackageInformation() as $name => $package)
+		{
+			if ($name == 'maxlen')
 			{
 				continue;
 			}
 
-			if (isset($package['source'])) {
-				$url = preg_replace('#\.git$#', '', $package['source']['url']);
-			}
-			else {
-				$url = false;
-			}
-
-			if (preg_match('#^https?://#', $url)) {
-				$link = sprintf('<a href="%1$s" target="_blank">%2$s</a>', $url, $package['name']);
+			if (preg_match('#^https?://#', $package['url'])) {
+				$link = sprintf('<a href="%1$s" target="_blank">%2$s</a>', $package['url'], $package['name']);
 			}
 			else {
 				$link = $package['name'];
 			}
 
-			$version = $package['version'];
+			$version = str_replace(' ', '&nbsp;', $package['version']);
 
-			if (preg_match('#(^dev-|-dev$)#', $package['version'])) {
-				if (isset($package['source']['reference'])) {
-					$version .= '&nbsp;@&nbsp;' . substr($package['source']['reference'], 0, 6);
-				}
-				else if (isset($package['dist']['reference'])) {
-					$version .= '&nbsp;@&nbsp;' . substr($package['dist']['reference'], 0, 6);
-				}
-			}
-
-			$time         = $package['time'];
+			$time    = $package['lastchange'];
 
 			$license_link = '';
 			foreach ($package['license'] as $license)
 			{
-				if (in_array($license, array(
-					'AFL-1.1', 'AFL-1.2', 'AFL-2.0', 'AFL-2.1', 'AFL-3.0', 'APL-1.0', 'Aladdin', 'ANTLR-PD', 'Apache-1.0',
-					'Apache-1.1', 'Apache-2.0', 'APSL-1.0', 'APSL-1.1', 'APSL-1.2', 'APSL-2.0', 'Artistic-1.0',
-					'Artistic-1.0-cl8', 'Artistic-1.0-Perl', 'Artistic-2.0', 'AAL', 'BitTorrent-1.0', 'BitTorrent-1.1',
-					'BSL-1.0', 'BSD-2-Clause', 'BSD-2-Clause-FreeBSD', 'BSD-2-Clause-NetBSD', 'BSD-3-Clause',
-					'BSD-3-Clause-Clear', 'BSD-4-Clause', 'BSD-4-Clause-UC', 'CECILL-1.0', 'CECILL-1.1', 'CECILL-2.0',
-					'CECILL-B', 'CECILL-C', 'ClArtistic', 'CNRI-Python', 'CNRI-Python-GPL-Compatible', 'CPOL-1.02',
-					'CDDL-1.0', 'CDDL-1.1', 'CPAL-1.0', 'CPL-1.0', 'CATOSL-1.1', 'Condor-1.1', 'CC-BY-1.0', 'CC-BY-2.0',
-					'CC-BY-2.5', 'CC-BY-3.0', 'CC-BY-ND-1.0', 'CC-BY-ND-2.0', 'CC-BY-ND-2.5', 'CC-BY-ND-3.0',
-					'CC-BY-NC-1.0', 'CC-BY-NC-2.0', 'CC-BY-NC-2.5', 'CC-BY-NC-3.0', 'CC-BY-NC-ND-1.0', 'CC-BY-NC-ND-2.0',
-					'CC-BY-NC-ND-2.5', 'CC-BY-NC-ND-3.0', 'CC-BY-NC-SA-1.0', 'CC-BY-NC-SA-2.0', 'CC-BY-NC-SA-2.5',
-					'CC-BY-NC-SA-3.0', 'CC-BY-SA-1.0', 'CC-BY-SA-2.0', 'CC-BY-SA-2.5', 'CC-BY-SA-3.0', 'CC0-1.0',
-					'CUA-OPL-1.0', 'D-FSL-1.0', 'WTFPL', 'EPL-1.0', 'eCos-2.0', 'ECL-1.0', 'ECL-2.0', 'EFL-1.0', 'EFL-2.0',
-					'Entessa', 'ErlPL-1.1', 'EUDatagrid', 'EUPL-1.0', 'EUPL-1.1', 'Fair', 'Frameworx-1.0', 'FTL',
-					'AGPL-1.0', 'AGPL-3.0', 'GFDL-1.1', 'GFDL-1.2', 'GFDL-1.3', 'GPL-1.0', 'GPL-1.0+', 'GPL-2.0',
-					'GPL-2.0+', 'GPL-2.0-with-autoconf-exception', 'GPL-2.0-with-bison-exception',
-					'GPL-2.0-with-classpath-exception', 'GPL-2.0-with-font-exception', 'GPL-2.0-with-GCC-exception',
-					'GPL-3.0', 'GPL-3.0+', 'GPL-3.0-with-autoconf-exception', 'GPL-3.0-with-GCC-exception', 'LGPL-2.1',
-					'LGPL-2.1+', 'LGPL-3.0', 'LGPL-3.0+', 'LGPL-2.0', 'LGPL-2.0+', 'gSOAP-1.3b', 'HPND', 'IBM-pibs',
-					'IPL-1.0', 'Imlib2', 'IJG', 'Intel', 'IPA', 'ISC', 'JSON', 'LPPL-1.3a', 'LPPL-1.0', 'LPPL-1.1',
-					'LPPL-1.2', 'LPPL-1.3c', 'Libpng', 'LPL-1.02', 'LPL-1.0', 'MS-PL', 'MS-RL', 'MirOS', 'MIT', 'Motosoto',
-					'MPL-1.0', 'MPL-1.1', 'MPL-2.0', 'MPL-2.0-no-copyleft-exception', 'Multics', 'NASA-1.3', 'Naumen',
-					'NBPL-1.0', 'NGPL', 'NOSL', 'NPL-1.0', 'NPL-1.1', 'Nokia', 'NPOSL-3.0', 'NTP', 'OCLC-2.0', 'ODbL-1.0',
-					'PDDL-1.0', 'OGTSL', 'OLDAP-2.2.2', 'OLDAP-1.1', 'OLDAP-1.2', 'OLDAP-1.3', 'OLDAP-1.4', 'OLDAP-2.0',
-					'OLDAP-2.0.1', 'OLDAP-2.1', 'OLDAP-2.2', 'OLDAP-2.2.1', 'OLDAP-2.3', 'OLDAP-2.4', 'OLDAP-2.5',
-					'OLDAP-2.6', 'OLDAP-2.7', 'OPL-1.0', 'OSL-1.0', 'OSL-2.0', 'OSL-2.1', 'OSL-3.0', 'OLDAP-2.8', 'OpenSSL',
-					'PHP-3.0', 'PHP-3.01', 'PostgreSQL', 'Python-2.0', 'QPL-1.0', 'RPSL-1.0', 'RPL-1.1', 'RPL-1.5',
-					'RHeCos-1.1', 'RSCPL', 'Ruby', 'SAX-PD', 'SGI-B-1.0', 'SGI-B-1.1', 'SGI-B-2.0', 'OFL-1.0', 'OFL-1.1',
-					'SimPL-2.0', 'Sleepycat', 'SMLNJ', 'SugarCRM-1.1.3', 'SISSL', 'SISSL-1.2', 'SPL-1.0', 'Watcom-1.0',
-					'NCSA', 'VSL-1.0', 'W3C', 'WXwindows', 'Xnet', 'X11', 'XFree86-1.1', 'YPL-1.0', 'YPL-1.1', 'Zimbra-1.3',
-					'Zlib', 'ZPL-1.1', 'ZPL-2.0', 'ZPL-2.1', 'Unlicense')))
-				{
-					$license_link .= sprintf('<a href="http://spdx.org/licenses/%1$s" target="_blank">%1$s</a>', $license);
+				if ($license['url']) {
+					$license_link .= sprintf('<a href="%1$s" target="_blank">%2$s</a>', $license['url'], $license['name']);
 				}
 				else
 				{
-					$license_link .= $license;
+					$license_link .= $license['name'];
 				}
 			}
 
@@ -737,6 +861,117 @@ EOF
 
 	}
 
+	protected function createNightlyTxt()
+	{
+		$lines = array();
+
+		$data = $this->preparePackageInformation();
+		$max  = $data['maxlen'];
+
+		foreach ($data as $name => $package)
+		{
+			if ($name == 'maxlen')
+			{
+				continue;
+			}
+
+			$line = sprintf('%s %s %s',
+				str_pad($name, strlen($max['name'])),
+				str_pad($package['version'], strlen($max['version'])),
+				str_pad($package['lastchange'], strlen($max['lastchange']))
+			);
+
+			if ($package['homepage'])
+			{
+				$lines[$package['homepage']][] = $line;
+			}
+			else
+			{
+				$lines['other'][] = $line;
+			}
+		}
+
+		$lineLen = strlen($max['name']) + strlen($max['version']) +  strlen($max['lastchange']) + 2;
+
+		$text = trim(sprintf('%s %s %s',
+			str_pad('Name', strlen($max['name'])),
+			str_pad('Version', strlen($max['version'])),
+			str_pad('Last modification', strlen($max['lastchange'])))
+		). "\n";
+
+		$text .= str_repeat('=', $lineLen) . "\n";
+
+		foreach ($lines as $url => $packages)
+		{
+			if ($url == 'other')
+			{
+				continue;
+			}
+
+			$text .= $url . "\n";
+			$text .= implode("\n", $packages);
+			$text .= "\n";
+			$text .= str_repeat('-', $lineLen);
+			$text .= "\n\n";
+		}
+
+		$text .= 'other' . "\n";
+		$text .= implode("\n", $lines['other']);
+		$text .= "\n\n";
+
+		file_put_contents(
+			$this->package . '/nightly.txt',
+			$text
+		);
+	}
+
+	protected function createNightlyXml()
+	{
+		$filename = $this->input->getOption('xml');
+
+		if (!$filename)
+		{
+			return;
+		}
+
+		$data = $this->preparePackageInformation();
+
+		$text = '<versioninfo>
+';
+
+		foreach ($data as $name => $package)
+		{
+			if ($name == 'maxlen')
+			{
+				continue;
+			}
+
+			$text .= sprintf(
+				'	<extension>
+		<name>%s</name>
+		<maintainer>%s</maintainer>
+		<hash>%s</hash>
+		<lastchange>%s</lastchange>
+	</extension>
+',
+				$name,
+				$package['homepage'] ? $package['homepage'] : 'other',
+				$package['version'],
+				$package['lastchange']
+			);
+		}
+
+		$text .= '</versioninfo>
+';
+
+		file_put_contents(
+			$filename,
+			$text
+		);
+	}
+
+
+
 	/**
 	 * Deploy the contents of the build directory either into an archive or to the deploy path
 	 * (depending on command line parameter).
@@ -747,7 +982,14 @@ EOF
 		$output = $this->input->getArgument('output');
 		if ($output == 'package.zip')
 		{
-			$output = $this->encodedName . '.zip';
+			if ($this->input->getOption('dir'))
+			{
+				$output = $this->encodedName;
+			}
+			else
+			{
+				$output = $this->encodedName . '.zip';
+			}
 		}
 
 		if ($this->input->getOption('dir')) {
@@ -795,6 +1037,8 @@ EOF
 		$this->assemblePackages();
 		$this->createAutoloader($this->nightlyModule, $this->classmap);
 		$this->saveConfig();
+		$this->createNightlyTxt();
+		$this->createNightlyXml();
 		$this->deploy();
 //		$this->cleanup();
 	}
