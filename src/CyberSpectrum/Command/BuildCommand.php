@@ -655,7 +655,7 @@ EOF
 			$license_urls = array();
 			foreach ($package['license'] as $license)
 			{
-				$license_url = $this->getLicenseUrl($package['license']);
+				$license_url = $this->getLicenseUrl($license);
 				if ($license_url !== $package['license'])
 				{
 					$license_urls[] = array(
