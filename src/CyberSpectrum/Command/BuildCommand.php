@@ -727,14 +727,21 @@ EOF
 		$className = 'BackendModule_' . md5($this->encodedName);
 
 		$html = <<<EOF
-<table class="table table-striped nightlyinfo">
+<div class="tl_message"><table class="table table-striped nightlyinfo">
+	<colgroup>
+		<col width="200" />
+		<col width="150" />
+		<col width="90" />
+		<col width="90" />
+		<col width="160" />
+	</colgroup>
 	<thead>
 		<tr>
-			<th width="200" class="name">Package</th>
-			<th width="150" class="version">Version</th>
-			<th width="130" class="time">Time</th>
-			<th width="80" class="license">License</th>
-			<th class="buttons">&nbsp;</th>
+			<th class="name">Package</th>
+			<th class="version">Version</th>
+			<th class="time">Time</th>
+			<th class="license">License</th>
+			<th class="buttons">Github</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -800,7 +807,7 @@ EOF;
 		}
 		$html .= <<<EOF
 	</tbody>
-</table>
+</table></div>
 
 EOF;
 
@@ -863,24 +870,35 @@ EOF
 
 		file_put_contents(
 			$dirName . '/html/style.css',
-			<<<EOF
-table.nightlyinfo {
-	width: 100%;
-}
+			str_replace(array('  ', "\n"), '', <<<EOF
+  table {
+    border-top:1px solid #d6d6d6;
+    border-left:1px solid #d6d6d6;
+    width: 100%;
+    margin-bottom:18px;
+  }
 
-table.nightlyinfo td, table.nightlyinfo th {
-	padding: 5px;
-}
+  th {
+    text-align:left;
+    background-color:#d6d6d6;
+    padding:1px 6px 3px;
+  }
 
-table.nightlyinfo tr:nth-child(even) {
-  background-color: #b3b6b3;
-}
+  td {
+    border-right:1px solid #d6d6d6;
+    border-bottom:1px solid #d6d6d6;
+    padding:3px 6px;
+  }
 
+  tr:nth-child(even) {
+    background:#ebfdd7;
+  }
 
-table.nightlyinfo tr:nth-child(odd) {
-  background-color: white;
-}
+  tr:nth-child(odd) {
+    background:#fff;
+  }
 EOF
+			)
 		);
 
 		file_put_contents(
