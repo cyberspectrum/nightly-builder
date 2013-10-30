@@ -834,8 +834,8 @@ EOF;
 			$dirName . '/config/config.php',
 			<<<EOF
 <?php
-
-\$GLOBALS['BE_MOD']['$beSection']['$beName'] = array('callback' => '$className');
+\$GLOBALS['TL_LANG']['MOD']['$className'] = array('$beName');
+\$GLOBALS['BE_MOD']['$beSection']['$className'] = array('callback' => '$className');
 EOF
 		);
 
