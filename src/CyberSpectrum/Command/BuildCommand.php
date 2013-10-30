@@ -726,6 +726,7 @@ EOF
 
 		$beName    = $this->encodedName;
 		$beSection = 'Nightly builds';
+		$beIcon    = 'system/themes/default/images/modules.gif';
 
 		if (isset($this->config['extra']['nightly-builder']['backend-name']))
 		{
@@ -735,7 +736,10 @@ EOF
 		{
 			$beSection = $this->config['extra']['nightly-builder']['backend-section'];
 		}
-
+		if (isset($this->config['extra']['nightly-builder']['backend-icon']))
+		{
+			$beIcon = $this->config['extra']['nightly-builder']['backend-icon'];
+		}
 
 		$className = 'BackendModule_' . md5($this->encodedName);
 
@@ -835,7 +839,10 @@ EOF;
 			<<<EOF
 <?php
 \$GLOBALS['TL_LANG']['MOD']['$className'] = array('$beName');
-\$GLOBALS['BE_MOD']['$beSection']['$className'] = array('callback' => '$className');
+\$GLOBALS['BE_MOD']['$beSection']['$className'] = array(
+	'callback' => '$className'
+	'icon'     => '$beIcon',
+);
 EOF
 		);
 
