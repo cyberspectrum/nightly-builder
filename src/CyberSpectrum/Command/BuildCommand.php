@@ -723,7 +723,20 @@ EOF
 		$dirName   = $this->package . '/' . $this->nightlyModule;
 		$modPath   = $this->nightlyModule;
 		$baseUrl   = '\Environment::getInstance()->base . \'/' . $modPath . '/html/github-btn.html\'';
-		$bename    = $this->encodedName;
+
+		$beName    = $this->encodedName;
+		$beSection = 'Nightly builds';
+
+		if (isset($this->config['extra']['nightly-builder']['backend-name']))
+		{
+			$beName = $this->config['extra']['nightly-builder']['backend-name'];
+		}
+		if (isset($this->config['extra']['nightly-builder']['backend-section']))
+		{
+			$beSection = $this->config['extra']['nightly-builder']['backend-section'];
+		}
+
+
 		$className = 'BackendModule_' . md5($this->encodedName);
 
 		$html = <<<EOF
@@ -822,7 +835,7 @@ EOF;
 			<<<EOF
 <?php
 
-\$GLOBALS['BE_MOD']['Nightly builds']['$bename'] = array('callback' => '$className');
+\$GLOBALS['BE_MOD']['$beSection']['$beName'] = array('callback' => '$className');
 EOF
 		);
 
