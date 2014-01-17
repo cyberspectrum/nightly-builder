@@ -98,6 +98,12 @@ class BuildCommand extends Command
 			$process = new Process('curl -sS https://getcomposer.org/installer | php', $this->repository);
 			$this->runProcess($process);
 		}
+		else
+		{
+			$this->output->writeln('  - <info>Update local copy of composer</info>');
+			$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' selfupdate', $this->repository);
+			$this->runProcess($process);
+		}
 	}
 
 	/**
