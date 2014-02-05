@@ -990,9 +990,12 @@ EOF
 			$text .= "\n\n";
 		}
 
-		$text .= 'other' . "\n";
-		$text .= implode("\n", $lines['other']);
-		$text .= "\n\n";
+		if (isset($lines['other']))
+		{
+			$text .= 'other' . "\n";
+			$text .= implode("\n", $lines['other']);
+			$text .= "\n\n";
+		}
 
 		file_put_contents(
 			$this->package . '/nightly.txt',
