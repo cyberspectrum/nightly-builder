@@ -476,6 +476,9 @@ EOF
 					case 'metapackage':
 						$this->output->writeln('    - skipped metapackage: <comment>' . $package['name'] . '</comment>');
 						break;
+					case 'composer-plugin':
+						$this->output->writeln('    - skipped composer-plugin: <comment>' . $package['name'] . '</comment>');
+						break;
 					case 'contao-module':
 						$this->assembleContaoModule($package);
 						break;
