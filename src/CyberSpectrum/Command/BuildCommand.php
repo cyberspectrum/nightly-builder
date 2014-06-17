@@ -370,6 +370,7 @@ EOF
 						continue;
 					}
 					$this->copy($srcPath . '/' . $source, $destPath . '/classes/' . $source);
+
 					$classmap = array_merge($classmap, $classmapGenerator->createMap($destPath . '/classes/' . $source));
 				}
 			}
@@ -384,6 +385,7 @@ EOF
 				}
 			}
 		}
+
 		foreach ($classmap as $class => $file)
 		{
 			$classmap[$class] = str_replace($this->package, '', $file);
@@ -403,6 +405,9 @@ EOF
 	{
 		$symlinks = array();
 		$runonce  = array();
+
+		$classmapGenerator = new ClassMapGenerator();
+		$classmap          = array();
 
 		if (array_key_exists('extra', $package) && array_key_exists('contao', $package['extra']))
 		{
@@ -424,7 +429,16 @@ EOF
 		foreach ($symlinks as $source => $target) {
 			$this->copy($this->repository . '/vendor/' . $package['name'] . '/' . $source, $this->package . '/' . $target);
 			$blackList[] = $this->repository . '/vendor/' . $package['name'] . '/' . $source;
+
+			$classmap = array_merge($classmap, $classmapGenerator->createMap($this->package . '/' . $target));
+
+			foreach ($classmap as $class => $file)
+			{
+				$classmap[$class] = str_replace($this->package, '', $file);
+			}
 		}
+
+		$this->classmap += $classmap;
 
 		$modulePath = 'system/modules/' . str_replace('/', '-', $package['name']);
 		// Detect best possible place to put classes into.
