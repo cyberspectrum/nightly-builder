@@ -3,9 +3,9 @@
 	"description": "Create an nightly package from a composer designed repository including all dependencies for nightly distribution.",
 	"require": {
 		"php": ">=5.4",
-		"symfony/console": "2.3.*@dev",
-		"symfony/process": "2.3.5",
-		"symfony/filesystem": "2.3.5",
+		"symfony/console": "~2.3.0",
+		"symfony/process": "~2.3.5",
+		"symfony/filesystem": "~2.3.5",
 		"composer/composer": "~1@dev"
 	},
 	"license": "LGPL-3.0+",
