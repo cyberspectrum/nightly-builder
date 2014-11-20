@@ -137,6 +137,11 @@ class BuildCommand extends Command
 			mkdir($this->package);
 		}
 
+		if (!is_dir($this->repository . '/packages'))
+		{
+			mkdir($this->repository . '/packages');
+		}
+
 		$this->output->writeln('  - <info>Prepare project ' . $this->repository . DIRECTORY_SEPARATOR . 'composer.json' . '</info>');
 		copy($this->input->getArgument('project'), $this->repository . DIRECTORY_SEPARATOR . 'composer.json');
 
@@ -167,7 +172,13 @@ class BuildCommand extends Command
 	 */
 	protected function isBlackListedPackage($package)
 	{
-		$blacklist = array('contao/core', 'contao-community-alliance/composer-installer');
+		$blacklist = array(
+			'contao/core',
+			'contao-community-alliance/composer',
+			'contao-community-alliance/composer-installer',
+			'contao-community-alliance/composer-plugin',
+			'contao-community-alliance/composer-client',
+		);
 
 		if (array_key_exists('extra', $this->config)
 			&& array_key_exists('nightly-builder', $this->config['extra'])
