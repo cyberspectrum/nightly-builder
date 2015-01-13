@@ -385,6 +385,17 @@ EOF
 					$classmap = array_merge($classmap, $classmapGenerator->createMap($destPath . '/classes/' . $source));
 				}
 			}
+			if (array_key_exists('psr-4', $package['autoload'])) {
+				foreach ($package['autoload']['psr-4'] as $source) {
+					if ($this->isPrefixIn($srcPath . '/' . $source, $blackList))
+					{
+						continue;
+					}
+					$this->copy($srcPath . '/' . $source, $destPath . '/classes/' . $source);
+
+					$classmap = array_merge($classmap, $classmapGenerator->createMap($destPath . '/classes/' . $source));
+				}
+			}
 			if (array_key_exists('classmap', $package['autoload'])) {
 				foreach ($package['autoload']['classmap'] as $source) {
 					if ($this->isPrefixIn($srcPath . '/' . $source, $blackList))
