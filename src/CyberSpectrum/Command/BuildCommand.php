@@ -84,9 +84,7 @@ class BuildCommand extends Command
 			$output->write($buffer);
 		};
 
-		$this->timeout > 120 ? $timeout = $this->timeout : $timeout = 120;
-
-		$process->setTimeout($timeout);
+		$process->setTimeout($this->timeout);
 		$process->run($writethru);
 		if (!$process->isSuccessful()) {
 			throw new \RuntimeException($process->getErrorOutput());
@@ -1204,7 +1202,7 @@ EOF
 	protected function getPackageType($package, $version)
 	{
 		$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' show ' . escapeshellarg($package) . ' ' . escapeshellarg($version));
-		$process->setTimeout(ini_get('max_execution_time') || $this->timeout);
+		$process->setTimeout($this->timeout);
 		$process->run();
 		if (!$process->isSuccessful()) {
 			throw new \RuntimeException($process->getErrorOutput());
