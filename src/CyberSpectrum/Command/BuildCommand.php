@@ -1252,7 +1252,7 @@ EOF
 		$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' config process-timeout --quiet', $this->repository);
 		$this->runProcess($process);
 
-		$this->input->getOption('time') > $process->getOutput() ? $this->timeout = trim($this->input->getOption('time')) : $this->timeout = trim($process->getOutput());
+		$this->timeout = $this->input->getOption('time');
 
 		if (trim($process->getOutput()) < $this->timeout) {
 			$this->output->writeln('  - <info>Composer config process time set to ' . $this->timeout . '</info>');
