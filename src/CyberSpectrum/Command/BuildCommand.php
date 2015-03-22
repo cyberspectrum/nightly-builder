@@ -1247,29 +1247,32 @@ EOF
 
 	protected function setTimeOut()
 	{
-		$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' config process-timeout --quiet', $this->repository);
-		$this->runProcess($process);
-
-		$this->timeout = $this->input->getOption('time');
-
-		if (trim($process->getOutput()) < $this->timeout) {
-			$this->output->writeln('  - <info>Composer config process time set to ' . $this->timeout . '</info>');
-
-			$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' config --global process-timeout ' . $this->timeout, $this->repository);
+		if ($this->input->getOption('time')) {
+			$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' config process-timeout --quiet', $this->repository);
 			$this->runProcess($process);
+
+			$this->timeout = $this->input->getOption('time');
+
+			if (trim($process->getOutput()) < $this->timeout) {
+				$this->output->writeln('  - <info>Composer config process time set to ' . $this->timeout . '</info>');
+				$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' config --global process-timeout ' . $this->timeout, $this->repository);
+				$this->runProcess($process);
+			}
 		}
 	}
 
 
 	protected function unsetTimeOut()
 	{
-		$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' config process-timeout', $this->repository);
-		$this->runProcess($process);
-
-		if ($this->input->getOption('time') === trim($process->getOutput())) {
-			$this->output->writeln('  - <info>Composer config process time unset ' . $this->timeout . '</info>');
-			$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' config --unset --global process-timeout --quiet', $this->repository);
+		if ($this->input->getOption('time')) {
+			$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' config process-timeout', $this->repository);
 			$this->runProcess($process);
+
+			if ($this->input->getOption('time') === trim($process->getOutput())) {
+				$this->output->writeln('  - <info>Composer config process time unset ' . $this->timeout . '</info>');
+				$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' config --unset --global process-timeout --quiet', $this->repository);
+				$this->runProcess($process);
+			}
 		}
 	}
 }
