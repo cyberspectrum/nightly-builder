@@ -38,7 +38,7 @@ class BuildCommand extends Command
 
 	protected $classmap = array();
 
-	protected $timeout = 0;
+	protected $timeout = 120;
 
 	/**
 	 * @var FileSystem $fs
