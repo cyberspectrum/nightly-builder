@@ -701,22 +701,24 @@ EOF
 			}
 
 			$license_urls = array();
-			foreach ($package['license'] as $license)
-			{
-				$license_url = $this->getLicenseUrl($license);
-				if ($license_url !== $package['license'])
+			if (isset($package['license'])) {
+				foreach ($package['license'] as $license)
 				{
-					$license_urls[] = array(
-						'name' => $license,
-						'url'  => $license_url
-					);
-				}
-				else
-				{
-					$license_urls[] = array(
-						'name' => $license,
-						'url'  => ''
-					);
+					$license_url = $this->getLicenseUrl($license);
+					if ($license_url !== $package['license'])
+					{
+						$license_urls[] = array(
+							'name' => $license,
+							'url'  => $license_url
+						);
+					}
+					else
+					{
+						$license_urls[] = array(
+							'name' => $license,
+							'url'  => ''
+						);
+					}
 				}
 			}
 
