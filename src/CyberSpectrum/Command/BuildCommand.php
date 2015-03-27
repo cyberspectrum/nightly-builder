@@ -38,6 +38,8 @@ class BuildCommand extends Command
 
 	protected $classmap = array();
 
+	protected $timeout = 120;
+
 	/**
 	 * @var FileSystem $fs
 	 */
@@ -64,6 +66,7 @@ class BuildCommand extends Command
 			->addOption('zip', 'Z', InputOption::VALUE_NONE, 'Create a zip archive (enabled by default, only present for sanity).')
 			->addOption('dir', 'D', InputOption::VALUE_NONE, 'Create a directory instead of an archive.')
 			->addOption('xml', 'x', InputOption::VALUE_OPTIONAL, 'Create a xml file at the given location.')
+			->addOption('time', 't', InputOption::VALUE_OPTIONAL, 'Set the composer process time.')
 			->addArgument('project', InputArgument::OPTIONAL, 'The input path containing the composer.json.', 'nightly.composer.json')
 			->addArgument('output', InputArgument::OPTIONAL, 'The output path.', 'package.zip');
 	}
@@ -81,7 +84,7 @@ class BuildCommand extends Command
 			$output->write($buffer);
 		};
 
-		$process->setTimeout(120);
+		$process->setTimeout($this->timeout);
 		$process->run($writethru);
 		if (!$process->isSuccessful()) {
 			throw new \RuntimeException($process->getErrorOutput());
@@ -1149,6 +1152,7 @@ EOF
 
 		$this->prepare();
 		$this->getComposer();
+		$this->setTimeOut();
 		$this->doInstall();
 		$this->createBackendModule();
 		$this->assemblePackages();
@@ -1156,6 +1160,7 @@ EOF
 		$this->saveConfig();
 		$this->createNightlyTxt();
 		$this->createNightlyXml();
+		$this->unsetTimeOut();
 		$this->deploy();
 //		$this->cleanup();
 	}
@@ -1197,7 +1202,7 @@ EOF
 	protected function getPackageType($package, $version)
 	{
 		$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' show ' . escapeshellarg($package) . ' ' . escapeshellarg($version));
-		$process->setTimeout(120);
+		$process->setTimeout($this->timeout);
 		$process->run();
 		if (!$process->isSuccessful()) {
 			throw new \RuntimeException($process->getErrorOutput());
@@ -1236,6 +1241,38 @@ EOF
 		}
 		else {
 			$zip->addFile($source, $target);
+		}
+	}
+
+
+	protected function setTimeOut()
+	{
+		if ($this->input->getOption('time')) {
+			$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' config process-timeout --quiet', $this->repository);
+			$this->runProcess($process);
+
+			$this->timeout = $this->input->getOption('time');
+
+			if (trim($process->getOutput()) < $this->timeout) {
+				$this->output->writeln('  - <info>Composer config process time set to ' . $this->timeout . '</info>');
+				$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' config --global process-timeout ' . $this->timeout, $this->repository);
+				$this->runProcess($process);
+			}
+		}
+	}
+
+
+	protected function unsetTimeOut()
+	{
+		if ($this->input->getOption('time')) {
+			$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' config process-timeout', $this->repository);
+			$this->runProcess($process);
+
+			if ($this->input->getOption('time') === trim($process->getOutput())) {
+				$this->output->writeln('  - <info>Composer config process time unset ' . $this->timeout . '</info>');
+				$process = new Process('php ' . escapeshellarg($this->repository . '/composer.phar') . ' config --unset --global process-timeout --quiet', $this->repository);
+				$this->runProcess($process);
+			}
 		}
 	}
 }
