@@ -376,13 +376,26 @@ EOF
 		if (array_key_exists('autoload', $package)) {
 			if (array_key_exists('psr-0', $package['autoload'])) {
 				foreach ($package['autoload']['psr-0'] as $source) {
-					if ($this->isPrefixIn($srcPath . '/' . $source, $blackList))
-					{
-						continue;
+					if (!is_array($source)) {
+						$sources = array($source);
 					}
-					$this->copy($srcPath . '/' . $source, $destPath . '/classes/' . $source);
+					else {
+						$sources = $source;
+					}
 
-					$classmap = array_merge($classmap, $classmapGenerator->createMap($destPath . '/classes/' . $source));
+					foreach ($sources as $item) {
+						if ($this->isPrefixIn($srcPath . '/' . $item, $blackList)) {
+							continue;
+						}
+
+						if (!file_exists($srcPath . '/' . $item)) {
+							continue;
+						}
+
+						$this->copy($srcPath . '/' . $item, $destPath . '/classes/' . $item);
+
+						$classmap = array_merge($classmap, $classmapGenerator->createMap($destPath . '/classes/' . $item));
+					}
 				}
 			}
 			if (array_key_exists('psr-4', $package['autoload'])) {
