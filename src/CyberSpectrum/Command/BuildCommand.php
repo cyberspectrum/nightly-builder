@@ -502,7 +502,11 @@ EOF
 			$fileName = $this->package . '/' . $this->nightlyModule . '/config/runonce_' . ($i++) . '.php';
 
 			$this->runonce[] = $fileName;
-			$this->copy($this->repository . '/vendor/' . $package['name'] .'/' . $file, $fileName);
+
+			// check if this in system/modules by destination path
+			if (!file_exists($this->package . '/' . $source)) {
+				$this->copy($this->repository . '/vendor/' . $package['name'] . '/' . $file, $fileName);
+			}
 		}
 	}
 
