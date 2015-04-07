@@ -206,6 +206,14 @@ class BuildCommand extends Command
 			return;
 		}
 
+		if (array_key_exists('extra', $this->config)
+			&& array_key_exists('nightly-builder', $this->config['extra'])
+			&& array_key_exists('blacklist-autoload', $this->config['extra']['nightly-builder'])) {
+			$blacklist = array_flip($this->config['extra']['nightly-builder']['blacklist-autoload']);
+
+			$classmap = array_diff_key($classmap, $blacklist);
+		}
+
 		$destPath = $this->package . '/' . $modulePath;
 
 		if (!is_dir($destPath . '/config'))
